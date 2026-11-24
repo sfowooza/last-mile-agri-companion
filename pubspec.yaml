@@ -1,0 +1,26 @@
+name: last_mile_agri
+description: Offline-first agricultural decision companion for Ugandan smallholders.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2
+  shared_preferences: ^2.5.3
+  image_picker: ^1.2.1
+  flutter_tts: ^4.2.0
+  speech_to_text: ^7.0.0
+  permission_handler: ^11.3.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
