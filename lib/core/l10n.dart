@@ -61,6 +61,8 @@ class L10n {
     'stop': 'Yimuka',
     'offlineReady': 'Ekola n\'awatali internet',
     'demoNotice': 'Eki kigezo kya demo — ssi AI eyatendezebwa. Buuza omukozi w\'ettaka.',
+    'listening': 'Nwulira...',
+    'voiceFailed': 'Teññegezze. Gezaako nate.',
   };
 
   static const Map<String, String> _en = {
@@ -107,6 +109,8 @@ class L10n {
     'stop': 'Stop',
     'offlineReady': 'Works offline',
     'demoNotice': 'Demo mode: seed classifier, not a trained AI. Always confirm with an extension worker.',
+    'listening': 'Listening...',
+    'voiceFailed': 'Could not understand. Try again.',
   };
 
   String t(String key) => (isLg ? _lg : _en)[key] ?? _en[key] ?? key;

@@ -155,11 +155,18 @@ class _EditFarmSheetState extends State<_EditFarmSheet> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
+              final size = double.tryParse(_size.text.trim());
+              if (size == null || size < 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Enter a valid farm size')),
+                );
+                return;
+              }
               final navigator = Navigator.of(context);
               await state.saveProfile(FarmProfile(
                 crops: _crops.toList(),
                 district: _district,
-                farmSize: double.tryParse(_size.text) ?? 0,
+                farmSize: size,
                 language: state.language,
                 onboarded: true,
               ));

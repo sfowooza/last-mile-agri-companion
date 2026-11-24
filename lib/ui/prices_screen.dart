@@ -82,7 +82,14 @@ class _AddPriceSheetState extends State<_AddPriceSheet> {
 
   Future<void> _submit() async {
     final value = double.tryParse(_price.text.trim());
-    if (value == null || _market.text.trim().isEmpty) return;
+    if (value == null || value <= 0 || _market.text.trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Enter a market and a positive price')),
+        );
+      }
+      return;
+    }
     final state = context.read<AppState>();
     await state.addPrice(MarketPrice(
       id: DateTime.now().microsecondsSinceEpoch.toString(),

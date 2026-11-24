@@ -40,8 +40,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _skip() {
     context.read<AppState>().completeOnboarding(
-          const FarmProfile(onboarded: true),
+          FarmProfile(language: _language, onboarded: true),
         );
+  }
+
+  void _selectLanguage(AppLanguage lang) {
+    setState(() => _language = lang);
+    // Rebuild the whole tree so onboarding copy switches immediately.
+    context.read<AppState>().setLanguage(lang);
   }
 
   @override
@@ -95,7 +101,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             value: lang,
             groupValue: _language,
             title: Text(lang.label, style: const TextStyle(fontSize: 19)),
-            onChanged: (v) => setState(() => _language = v!),
+            onChanged: (v) => _selectLanguage(v!),
           ),
       ],
     );

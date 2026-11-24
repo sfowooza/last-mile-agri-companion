@@ -96,10 +96,17 @@ const List<CalendarTask> kCalendarTasks = [
   ),
 ];
 
+/// ISO week number (1–53) — stable for the whole Mon–Sun week.
+int _isoWeek(DateTime date) {
+  final day = DateTime.utc(date.year, date.month, date.day);
+  final thursday = day.add(Duration(days: 4 - day.weekday));
+  final yearStart = DateTime.utc(thursday.year, 1, 1);
+  return ((thursday.difference(yearStart).inDays) ~/ 7) + 1;
+}
+
 /// Tasks for the current week, personalised to the farmer's crops.
 List<CalendarTask> tasksForWeek(List<String> crops, DateTime now) {
-  final week = ((now.day - 1) ~/ 7) + 1;
-  final normalized = 1 + (week % 3);
+  final normalized = 1 + (_isoWeek(now) % 3);
   return kCalendarTasks
       .where((t) => crops.contains(t.crop) && t.week == normalized)
       .toList();

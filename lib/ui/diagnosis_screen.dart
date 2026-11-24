@@ -22,6 +22,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
   File? _image;
   String? _crop;
   bool _analyzing = false;
+  bool _listening = false;
   List<DiagnosisResult>? _results;
 
   @override
@@ -50,10 +51,18 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
   Future<void> _listenCrop() async {
     final mic = await Permission.microphone.request();
     if (!mic.isGranted || !mounted) return;
+    setState(() => _listening = true);
     final state = context.read<AppState>();
     final l = L10nScope.of(context);
     final words = await state.voice.listenOnce(state.language);
-    if (!mounted || words.isEmpty) return;
+    if (!mounted) return;
+    setState(() => _listening = false);
+    if (words.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.t('voiceFailed'))),
+      );
+      return;
+    }
     final spoken = words.join(' ').toLowerCase();
     for (final crop in kCropNames) {
       if (spoken.contains(crop.toLowerCase())) {
@@ -62,7 +71,14 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
         return;
       }
     }
-    await state.voice.speak(l.t('voiceHint'), state.language);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l.t('voiceFailed'))),
+    );
+  }
+
+  Future<void> _stopListening() async {
+    await context.read<AppState>().voice.stopListening();
+    if (mounted) setState(() => _listening = false);
   }
 
   Future<void> _analyze() async {
@@ -71,6 +87,13 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
     final state = context.read<AppState>();
     final results = await state.engine.diagnose(_image!.path, _crop);
     if (!mounted) return;
+    if (results.isEmpty) {
+      setState(() => _analyzing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No result. Try another photo.')),
+      );
+      return;
+    }
     setState(() {
       _results = results;
       _analyzing = false;
@@ -135,11 +158,26 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                 onChanged: (v) => setState(() => _crop = v),
               ),
               const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: _listenCrop,
-                icon: const Icon(Icons.mic),
-                label: Text(l.t('voiceHint')),
-              ),
+              if (_listening)
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(l.t('listening')),
+                    const Spacer(),
+                    TextButton(onPressed: _stopListening, child: Text(l.t('stop'))),
+                  ],
+                )
+              else
+                OutlinedButton.icon(
+                  onPressed: _listenCrop,
+                  icon: const Icon(Icons.mic),
+                  label: Text(l.t('voiceHint')),
+                ),
               const SizedBox(height: 24),
               GestureDetector(
                 onTap: _analyzing ? null : _pick,
